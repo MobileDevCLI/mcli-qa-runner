@@ -36,7 +36,8 @@ def sig(root):
     s="|".join(sorted({("" if "EditText" in n.get("class","") else (n.get("text") or n.get("content-desc") or ""))+n.get("class","") for n in root.iter("node") if n.get("package")==PKG and (n.get("clickable")=="true" or n.get("text"))}))
     return hashlib.md5(s.encode()).hexdigest()[:10]
 NAVBACK=re.compile(r"^(back|close|navigate up|cancel|dismiss|done)$",re.I); idle=0; relaunches=[0]
-DANGER=re.compile(r"delete|remove|sign out|log ?out|reset|erase all|uninstall",re.I)
+DANGER=re.compile(r"delete|remove|sign out|log ?out|reset|erase all|uninstall"+(("|"+os.environ["EXTRA_DANGER"]) if os.environ.get("EXTRA_DANGER") else ""),re.I)
+term_done=set()
 adb("logcat","-c")
 rec=[]; ri=[0]
 def startrec():
@@ -75,7 +76,11 @@ while step<MAX:
     idle=0
     lab,x,y,cls=todo[0]; tried[(s,lab)]=1
     ctx=f"tap '{lab}' ({cls.split('.')[-1]}) at {x},{y} on screen {s}"
-    if "EditText" in cls:
+    if "TerminalView" in cls:  # terminal app: run one harmless local command per screen
+        adb("shell","input","tap",str(x),str(y)); time.sleep(.5)
+        if s not in term_done:
+            term_done.add(s); adb("shell","input","text","echo%sQA_OK%s&&%sls%s/"); adb("shell","input","keyevent","66"); ctx=f"terminal: echo QA_OK && ls / on {s}"
+    elif "EditText" in cls:
         adb("shell","input","tap",str(x),str(y)); time.sleep(.5); adb("shell","input","text","QA%stest%s123"); adb("shell","input","keyevent","111"); ctx=f"type into '{lab}' on {s}"
     else: adb("shell","input","tap",str(x),str(y))
     time.sleep(1.2); path.append(ctx); n=f"s{step:03d}"; shot(n); steps.append((step,ctx,n+".png"))

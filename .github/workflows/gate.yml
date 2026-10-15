@@ -5,7 +5,7 @@ on:
     inputs:
       app:
         type: choice
-        options: [cleanscan, rentharbor, bizharbor, all]
+        options: [cleanscan, rentharbor, bizharbor, mobilecli, all]
         default: cleanscan
       steps:
         description: Crawler steps
@@ -25,6 +25,9 @@ jobs:
         app: ${{ fromJSON(inputs.app == 'all' && '["cleanscan","rentharbor","bizharbor"]' || format('["{0}"]', inputs.app)) }}
     env:
       GATE_STEPS: ${{ inputs.steps }}
+      # mobilecli: first launch extracts the bootstrap; never sign in, buy, or start network installs
+      LAUNCH_WAIT: ${{ matrix.app == 'mobilecli' && '15' || '4' }}
+      EXTRA_DANGER: ${{ matrix.app == 'mobilecli' && 'sign ?in|log ?in|connect|github|google|claude|codex|gemini|install|download|purchase|buy|subscribe|upgrade|unlock|pro|toolkit|update|share' || '' }}
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
