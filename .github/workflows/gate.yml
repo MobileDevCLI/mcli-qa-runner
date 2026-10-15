@@ -27,7 +27,7 @@ jobs:
       GATE_STEPS: ${{ inputs.steps }}
       # mobilecli: first launch extracts the bootstrap; never sign in, buy, or start network installs
       LAUNCH_WAIT: ${{ matrix.app == 'mobilecli' && '15' || '4' }}
-      EXTRA_DANGER: ${{ matrix.app == 'mobilecli' && 'sign ?in|log ?in|connect|github|google|claude|codex|gemini|install|download|purchase|buy|subscribe|upgrade|unlock|pro|toolkit|update|share' || '' }}
+      EXTRA_DANGER: ${{ matrix.app == 'mobilecli' && 'sign ?in|log ?in|connect|github|google|claude|codex|gemini|install|download|purchase|buy|subscribe|upgrade|unlock|go pro|\bpro\b|get toolkit|update|share' || '' }}
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
