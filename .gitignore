@@ -1,0 +1,7 @@
+apks/
+qa/reports/
+__pycache__/
+*.apk
+*.jks
+*.keystore
+.env*
